@@ -1,0 +1,35 @@
+name: Issue Label Commenter
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add comment based on label
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(label => label.name);
+            if (labels.includes('bug')) {
+              await github.issues.createComment({
+                ...context.repo,
+                issue_number: issue.number,
+                body: 'Thank you. We will fix it.'
+              });
+            } else if (labels.includes('feature')) {
+              await github.issues.createComment({
+                ...context.repo,
+                issue_number: issue.number,
+                body: 'Thank you, we will consider to include this feature.'
+              });
+            } else if (labels.includes('discussion')) {
+              await github.issues.createComment({
+                ...context.repo,
+                issue_number: issue.number,
+                body: 'Thanks for starting this discussion! We welcome community input.'
+              });
+            }
